@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Function to run tle script and check output against expecte
+function test {
+    inputFile=$1
+    expectedFile=$2
+
+    cat "$inputFile" | ../tle > test_file.txt
+
+    # Check that there is no difference between expected file and actual result
+    difference=$(diff test_file.txt "$expectedFile")
+    if [[ $difference != "" ]]; then
+        echo "Output for $inputFile did not match $expectedFile"
+    else
+        echo "Test for $inputFile passed"
+    fi
+    rm test_file.txt
+}
+
+test "iss.txt" "iss_expected.txt"
+test "stations.txt" "stations_expected.txt"

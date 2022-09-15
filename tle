@@ -12,8 +12,8 @@ INTL_DES3_RE="([\w\s]{3})"
 EPOCH_YEAR_RE="(\d{2})"
 EPOCH_DAY_RE="(\d{3}\.[\w\s]{8})"
 DX_MEAN_MOTION_RE="([+ ]\.[\d\s]{8})"
-D2X_MEAN_MOTION_RE="([+ ][\d]{5})([+-]\d{1})"
-BSTAR_RE="([+ ][\d]{5})([+-]\d{1})"
+D2X_MEAN_MOTION_RE="([+ ][\d]{5}[+-]\d{1})"
+BSTAR_RE="([+ ][\d]{5}[+-]\d{1})"
 EPHEM_TYPE_RE="(\d)"
 ELEMENT_RE="([\d\s]{4})"
 CHECKSUM1_RE="(\d)"
@@ -26,7 +26,7 @@ ECC_RE="([\d\s]{7})"
 ARG_OF_PERIGEE_RE="([\d\s]{3}\.[\d\s]{4})"
 MEAN_ANOMALY_RE="([\d\s]{3}\.[\d\s]{4})"
 MEAN_MOTION_RE="([\d\s]{2}\.\d{8})"
-REVS_NUM_RE="(\d{5})"
+REVS_NUM_RE="([\s\d]{5})"
 CHECKSUM2_RE="(\d)"
 
 # Construct patterns for each line from fields
@@ -44,9 +44,12 @@ tleRecords=$(echo "$rawInput" | tr "\n" "%" | sed "s/%1/;1/g" | sed "s/%2/;2/g" 
 
 # Go through each record and parse each eachd data point
 while IFS= read -r line; do
-    # Generate a perl code which prints a comma-separated list of each capture group found in TLE regex
-    perlScript="print \"\$_,\" for \"$line\" =~ /$TLE_RE/g"
+    # Use perl to parse each match group and sed to remove unneeded whitespace
+    tleRecord=$(perl -e "print \"\$_,\" for \"$line\" =~ /$TLE_RE/g")
+    
+    # Split up data and name since different amounts of whitespace need to be removed from both
+    dataColumns=$(echo "$tleRecord" | cut -d, -f2- | sed -r "s/\s+//g" | sed -r "s/,$//g")
+    nameColumn=$(echo "$tleRecord" | cut -d, -f1 | sed -r "s/\s{2,}//g")
 
-    perl -e "$perlScript"
-    printf "\n"
+    echo "$nameColumn,$dataColumns"
 done <<< $tleRecords
