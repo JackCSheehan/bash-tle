@@ -36,8 +36,17 @@ LINE2_RE="2 $SAT_NUM2_RE $INC_RE $RAAN_RE $ECC_RE $ARG_OF_PERIGEE_RE $MEAN_ANOMA
 # Construct pattern for whole record from lines
 TLE_RE="$NAME_RE;$LINE1_RE;$LINE2_RE"
 
+# tput color code
+RED=1
+
+inputFilePath=$1
+
 # TLE data comes from STDIN (via a pipe)
-rawInput=$(cat)
+if [[ $1 == "" ]]; then
+    rawInput=$(cat)
+else
+    rawInput=$(cat "$inputFilePath")
+fi
 
 # For easier processing, put each record on one line
 tleRecords=$(echo "$rawInput" | tr "\n" "%" | sed "s/%1/;1/g" | sed "s/%2/;2/g" | sed "s/%/\n/g")
@@ -46,7 +55,13 @@ tleRecords=$(echo "$rawInput" | tr "\n" "%" | sed "s/%1/;1/g" | sed "s/%2/;2/g" 
 while IFS= read -r line; do
     # Use perl to parse each match group and sed to remove unneeded whitespace
     tleRecord=$(perl -e "print \"\$_,\" for \"$line\" =~ /$TLE_RE/g")
-    
+
+    # Ignore this record if it can't be parsed
+    if [[ $tleRecord == "" ]]; then
+        echo "$(tput setaf $RED)Could not parse record $lineNo: '$line'$(tput sgr0)" >&2
+        continue
+    fi
+
     # Split up data and name since different amounts of whitespace need to be removed from both
     dataColumns=$(echo "$tleRecord" | cut -d, -f2- | sed -r "s/\s+//g" | sed -r "s/,$//g")
     nameColumn=$(echo "$tleRecord" | cut -d, -f1 | sed -r "s/\s{2,}//g")

@@ -1,21 +1,47 @@
 #!/bin/bash
 
-# Function to run tle script and check output against expecte
-function test {
+# tput color codes
+RED=1
+GREEN=2
+
+# Function to run tle script when input is piped and check output against expected
+function testPipe {
     inputFile=$1
     expectedFile=$2
 
-    cat "$inputFile" | ../tle > test_file.txt
+    cat "$inputFile" | ../tle > test_file.txt 2> /dev/null
 
     # Check that there is no difference between expected file and actual result
     difference=$(diff test_file.txt "$expectedFile")
     if [[ $difference != "" ]]; then
-        echo "Output for $inputFile did not match $expectedFile"
+        echo "$(tput setaf $RED)PIPE: Output for $inputFile did not match $expectedFile$(tput sgr0)"
     else
-        echo "Test for $inputFile passed"
+        echo "$(tput setaf $GREEN)PIPE: Test for $inputFile passed$(tput sgr0)"
     fi
     rm test_file.txt
 }
 
-test "iss.txt" "iss_expected.txt"
-test "stations.txt" "stations_expected.txt"
+# Function to run tle script when input is given as a file name
+function testFile {
+    inputFile=$1
+    expectedFile=$2
+
+    ../tle $inputFile > test_file.txt 2> /dev/null
+
+    # Check that there is no difference between expected file and actual result
+    difference=$(diff test_file.txt "$expectedFile")
+    if [[ $difference != "" ]]; then
+        echo "$(tput setaf $RED)FILE: Output for $inputFile did not match $expectedFile$(tput sgr0)"
+    else
+        echo "$(tput setaf $GREEN)FILE: Test for $inputFile passed$(tput sgr0)"
+    fi
+    rm test_file.txt
+}
+
+testPipe "iss.txt" "iss_expected.txt"
+testPipe "stations.txt" "stations_expected.txt"
+testPipe "stations_invalid.txt" "stations_invalid_expected.txt"
+
+testFile "iss.txt" "iss_expected.txt"
+testFile "stations.txt" "stations_expected.txt"
+testFile "stations_invalid.txt" "stations_invalid_expected.txt"
