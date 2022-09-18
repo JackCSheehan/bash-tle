@@ -11,9 +11,9 @@ INTL_DES2_RE="(\d{3})"
 INTL_DES3_RE="([A-Z0-9\s]{3})"
 EPOCH_YEAR_RE="(\d{2})"
 EPOCH_DAY_RE="(\d{3}\.[A-Z0-9\s]{8})"
-DX_MEAN_MOTION_RE="([+ ]\.[\d\s]{8})"
-D2X_MEAN_MOTION_RE="([+ ][\d]{5}[+-]\d{1})"
-BSTAR_RE="([+ ][\d]{5}[+-]\d{1})"
+DX_MEAN_MOTION_RE="([-+ ]\.[\d\s]{8})"
+D2X_MEAN_MOTION_RE="([-+ ][\d]{5}[-+]\d{1})"
+BSTAR_RE="([-+ ][\d]{5}[-+]\d{1})"
 EPHEM_TYPE_RE="(\d)"
 ELEMENT_RE="([\d\s]{4})"
 CHECKSUM1_RE="(\d)"
@@ -65,7 +65,7 @@ while IFS= read -r line; do
 
     # Split up data and name since different amounts of whitespace need to be removed from both
     dataColumns=$(echo "$tleRecord" | cut -d, -f2- | sed -r "s/\s+//g" | sed -r "s/,$//g")
-    nameColumn=$(echo "$tleRecord" | cut -d, -f1 | sed -r "s/\s{2,}//g")
+    nameColumn=$(echo "$tleRecord" | cut -d, -f1 | sed -r "s/\s{2,}/ /g" | sed -r "s/\s+$//g")
 
     echo "$nameColumn,$dataColumns"
 done <<< $tleRecords

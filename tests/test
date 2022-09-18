@@ -41,7 +41,11 @@ function testFile {
 testPipe "iss.txt" "iss_expected.txt"
 testPipe "stations.txt" "stations_expected.txt"
 testPipe "stations_invalid.txt" "stations_invalid_expected.txt"
+testPipe "gps.txt" "gps_expected.txt"
+testPipe "edge.txt" "edge_expected.txt"
 
 testFile "iss.txt" "iss_expected.txt"
 testFile "stations.txt" "stations_expected.txt"
 testFile "stations_invalid.txt" "stations_invalid_expected.txt"
+testFile "gps.txt" "gps_expected.txt"
+testFile "edge.txt" "edge_expected.txt"
