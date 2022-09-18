@@ -1,7 +1,7 @@
 # Bash TLE parser
 A pipeable TLE parser written in Bash.
 
-This Bash script takes raw Two-Line Element (TLE) set data and turns each record into a comma-separated list of each of the record's fields. The TLE format is used to describe the orbit of a satellite orbiting Earth.
+This Bash script takes raw two-line element (TLE) set data and turns each record into a comma-separated list of each of the record's fields. The TLE format is used to describe the orbit of a satellite orbiting Earth.
 
 ## Usage
 The TLE parser can either have raw TLE data input piped into it:
