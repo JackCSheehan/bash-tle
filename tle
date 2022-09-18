@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Pattern for satellite name
-NAME_RE="^(.{1,24})"
+NAME_RE="^([-0-9A-Z. +()]{1,24})"
 
 # Patterns for each field in line 1
 SAT_NUM1_RE="(\d{1,5})"
-CLASS_RE="(\w{1})"
+CLASS_RE="([A-Z0-9]{1})"
 INTL_DES1_RE="(\d{2})"
 INTL_DES2_RE="(\d{3})"
-INTL_DES3_RE="([\w\s]{3})"
+INTL_DES3_RE="([A-Z0-9\s]{3})"
 EPOCH_YEAR_RE="(\d{2})"
-EPOCH_DAY_RE="(\d{3}\.[\w\s]{8})"
+EPOCH_DAY_RE="(\d{3}\.[A-Z0-9\s]{8})"
 DX_MEAN_MOTION_RE="([+ ]\.[\d\s]{8})"
 D2X_MEAN_MOTION_RE="([+ ][\d]{5}[+-]\d{1})"
 BSTAR_RE="([+ ][\d]{5}[+-]\d{1})"
@@ -44,6 +44,7 @@ inputFilePath=$1
 # TLE data comes from STDIN (via a pipe)
 if [[ $1 == "" ]]; then
     rawInput=$(cat)
+# ...or TLE data comes from a given file
 else
     rawInput=$(cat "$inputFilePath")
 fi
@@ -51,14 +52,14 @@ fi
 # For easier processing, put each record on one line
 tleRecords=$(echo "$rawInput" | tr "\n" "%" | sed "s/%1/;1/g" | sed "s/%2/;2/g" | sed "s/%/\n/g")
 
-# Go through each record and parse each eachd data point
+# Go through each record and parse each data point
 while IFS= read -r line; do
     # Use perl to parse each match group and sed to remove unneeded whitespace
     tleRecord=$(perl -e "print \"\$_,\" for \"$line\" =~ /$TLE_RE/g")
 
     # Ignore this record if it can't be parsed
     if [[ $tleRecord == "" ]]; then
-        echo "$(tput setaf $RED)Could not parse record $lineNo: '$line'$(tput sgr0)" >&2
+        echo "$(tput setaf $RED)Could not parse record: '$line'$(tput sgr0)" >&2
         continue
     fi
 
